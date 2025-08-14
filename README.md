@@ -23,7 +23,7 @@ pip install weatherlinkv2
 Or install from source:
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/Vendetta0462/weatherlinkv2.git
 cd weatherlinkv2
 pip install -e .
 ```

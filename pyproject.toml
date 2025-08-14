@@ -66,10 +66,9 @@ jupyter = [
 ]
 
 [project.urls]
-# Homepage = "https://github.com/weatherlink/weatherlinkv2-python"
-# Documentation = "https://github.com/weatherlink/weatherlinkv2-python/wiki"
-# Repository = "https://github.com/weatherlink/weatherlinkv2-python"
-# "Bug Tracker" = "https://github.com/weatherlink/weatherlinkv2-python/issues"
+Homepage = "https://github.com/Vendetta0462/weatherlinkv2"
+Repository = "https://github.com/Vendetta0462/weatherlinkv2"
+"Bug Tracker" = "https://github.com/Vendetta0462/weatherlinkv2/issues"
 
 [tool.setuptools]
 package-dir = {"" = "."}
