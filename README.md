@@ -1,5 +1,10 @@
 # WeatherLink v2 API Python Library
 
+[![PyPI version](https://badge.fury.io/py/weatherlinkv2.svg)](https://badge.fury.io/py/weatherlinkv2)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![GitHub release](https://img.shields.io/github/release/Vendetta0462/weatherlinkv2.svg)](https://GitHub.com/Vendetta0462/weatherlinkv2/releases/)
+
 A comprehensive Python library for accessing WeatherLink v2 API to retrieve meteorological and air quality data efficiently. Designed for developers, researchers, and weather enthusiasts who need fast, reliable access to weather station data.
 
 ## 🌟 Features
