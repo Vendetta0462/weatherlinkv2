@@ -165,14 +165,15 @@ class WeatherLinkAPI:
         """
         Get historical weather data from a station.
         
-        Note: The WeatherLink API demo has limitations for historical data.
-        The maximum time range is 24 hours (86400 seconds) for demo mode.
+        Note: The WeatherLink API has a 24-hour limit per request. This method
+        automatically splits requests longer than 24 hours into multiple requests
+        and combines the results into a single response.
         
         Args:
             station_id (str, optional): Station ID. If None and demo_mode is True,
                                       uses demo station. If demo_mode is False,
                                       you must provide a station_id.
-            hours_back (int): Hours of historical data to retrieve (max 24 for demo)
+            hours_back (int): Hours of historical data to retrieve (automatically chunked if > 24)
             start_timestamp (int, optional): Start time as Unix timestamp
             end_timestamp (int, optional): End time as Unix timestamp
             
@@ -184,10 +185,10 @@ class WeatherLinkAPI:
             
         Example:
             >>> api = WeatherLinkAPI(api_key, api_secret, demo_mode=True)
-            >>> historic = api.get_historic_data(hours_back=12)  # Uses demo station
+            >>> historic = api.get_historic_data(hours_back=12)  # Single request
             >>> 
             >>> api = WeatherLinkAPI(api_key, api_secret, demo_mode=False)
-            >>> historic = api.get_historic_data("your_station_id", hours_back=168)  # 7 days
+            >>> historic = api.get_historic_data("your_station_id", hours_back=168)  # 7 days, multiple requests
         """
         if station_id is None:
             if self.demo_mode:
@@ -195,12 +196,7 @@ class WeatherLinkAPI:
             else:
                 raise ValueError("station_id is required when demo_mode is False")
             
-        # Apply demo limitations only in demo mode
-        if self.demo_mode and hours_back > 24:
-            print("Warning: Demo API limited to 24 hours. Adjusting to 24 hours.")
-            hours_back = 24
-            
-        # Use provided timestamps or calculate from hours_back
+        # Calculate time range
         if start_timestamp is None or end_timestamp is None:
             end_time = int(time.time())
             start_time = end_time - (hours_back * 3600)
@@ -208,16 +204,92 @@ class WeatherLinkAPI:
             start_time = start_timestamp
             end_time = end_timestamp
         
-        params = {
-            'start-timestamp': start_time,
-            'end-timestamp': end_time
+        # Calculate total hours
+        total_seconds = end_time - start_time
+        total_hours = total_seconds / 3600
+        
+        # Check if we need to split the request
+        max_hours_per_request = 24
+        
+        if total_hours <= max_hours_per_request:
+            # Single request - original behavior
+            params = {
+                'start-timestamp': start_time,
+                'end-timestamp': end_time
+            }
+            
+            try:
+                return self._make_request(f'historic/{station_id}', params)
+            except Exception as e:
+                print(f"Error getting historic data: {e}")
+                return {}
+        
+        # Multiple requests needed - split into chunks
+        chunk_seconds = max_hours_per_request * 3600
+        all_responses = []
+        
+        current_start = start_time
+        chunk_num = 1
+        
+        while current_start < end_time:
+            current_end = min(current_start + chunk_seconds, end_time)
+            
+            params = {
+                'start-timestamp': current_start,
+                'end-timestamp': current_end
+            }
+            
+            try:
+                response = self._make_request(f'historic/{station_id}', params)
+                all_responses.append(response)
+                chunk_num += 1
+            except Exception as e:
+                print(f"Error getting historic data chunk: {e}")
+                # Continue with next chunk even if one fails
+            
+            current_start = current_end
+        
+        # Combine all responses into single response format
+        if not all_responses:
+            return {}
+        
+        # Use the first response as base structure and get generated_at from last response
+        combined_response = {
+            'station_id_uuid': all_responses[0].get('station_id_uuid'),
+            'station_id': all_responses[0].get('station_id'),
+            'sensors': [],
+            'generated_at': all_responses[-1].get('generated_at', int(time.time()))
         }
         
-        try:
-            return self._make_request(f'historic/{station_id}', params)
-        except Exception as e:
-            print(f"Error getting historic data: {e}")
-            return {}
+        # Combine sensor data from all chunks
+        # Group by lsid (sensor ID) to combine data arrays
+        sensor_data_by_lsid = {}
+        
+        for response in all_responses:
+            for sensor in response.get('sensors', []):
+                lsid = sensor.get('lsid')
+                
+                if lsid not in sensor_data_by_lsid:
+                    # First time seeing this sensor, initialize
+                    sensor_data_by_lsid[lsid] = {
+                        'lsid': lsid,
+                        'sensor_type': sensor.get('sensor_type'),
+                        'data_structure_type': sensor.get('data_structure_type'),
+                        'data': []
+                    }
+                
+                # Append data records
+                if 'data' in sensor and sensor['data']:
+                    sensor_data_by_lsid[lsid]['data'].extend(sensor['data'])
+        
+        # Sort data by timestamp for each sensor and add to combined response
+        for lsid, sensor_info in sensor_data_by_lsid.items():
+            # Sort data records by timestamp
+            if sensor_info['data']:
+                sensor_info['data'].sort(key=lambda x: x.get('ts', 0))
+            combined_response['sensors'].append(sensor_info)
+        
+        return combined_response
 
     def get_station_info(self, station_id: Optional[str] = None) -> Dict:
         """

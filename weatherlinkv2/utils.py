@@ -89,6 +89,69 @@ def parse_weather_data(api_response: Dict, sensor_type: int, data_structure_type
                 'aqi_hi_val': 'aqi_max_value',
                 'aqi_hi_desc': 'aqi_max_description'
             }
+        },
+        23: {  # Vantage Pro2 weather station
+            4: {  # WeatherLink IP/Vantage Connect Archive Record - Revision B
+                # Temperature
+                'temp_out': 'temperature_out_f',
+                'temp_out_hi': 'temperature_out_max_f',
+                'temp_out_lo': 'temperature_out_min_f',
+                'temp_in': 'temperature_in_f',
+                # Humidity
+                'hum_in': 'humidity_in_pct',
+                'hum_out': 'humidity_out_pct',
+                # Rainfall
+                'rainfall_in': 'rainfall_in',
+                'rainfall_mm': 'rainfall_mm',
+                'rain_rate_hi_in': 'rain_rate_max_in',
+                'rain_rate_hi_mm': 'rain_rate_max_mm',
+                # Pressure
+                'bar': 'pressure_in',
+                'abs_press': 'pressure_absolute_in',
+                'bar_noaa': 'pressure_sealevel_in',
+                # Solar Radiation
+                'solar_rad_avg': 'solar_radiation_wm2',
+                'solar_rad_hi': 'solar_radiation_max_wm2',
+                'uv_index_avg': 'uv_index',
+                'uv_index_hi': 'uv_index_max',
+                # Wind
+                'wind_speed_avg': 'wind_speed_mph',
+                'wind_speed_hi': 'wind_speed_max_mph',
+                'wind_dir_of_hi': 'wind_dir_at_max',
+                'wind_dir_of_prevail': 'wind_dir_prevail',
+                'wind_chill': 'wind_chill_f'
+            }
+        },
+        37: {  # Vantage Vue weather station
+            24: {  # WeatherLink Console ISS Archive Record
+                # Temperature
+                'temp_last': 'temperature_f',
+                'temp_avg': 'temperature_avg_f',
+                'temp_hi': 'temperature_max_f',
+                'temp_lo': 'temperature_min_f',
+                # Humidity
+                'hum_last': 'humidity_pct',
+                'hum_hi': 'humidity_max_pct',
+                'hum_lo': 'humidity_min_pct',
+                # Rainfall
+                'rainfall_in': 'rainfall_in',
+                'rainfall_mm': 'rainfall_mm',
+                'rain_rate_hi_in': 'rain_rate_max_in',
+                'rain_rate_hi_mm': 'rain_rate_max_mm',
+                # Solar Radiation
+                'solar_rad_avg': 'solar_radiation_wm2',
+                'solar_rad_hi': 'solar_radiation_max_wm2',
+                'uv_index_avg': 'uv_index',
+                'uv_index_hi': 'uv_index_max',
+                # Wind
+                'wind_speed_avg': 'wind_speed_mph',
+                'wind_speed_hi': 'wind_speed_max_mph',
+                'wind_speed_hi_dir': 'wind_dir_at_max_deg',
+                'wind_dir_of_prevail': 'wind_dir_prevail_deg',
+                'wind_dir_of_avg': 'wind_dir_avg_deg',
+                'wind_chill_last': 'wind_chill_f',
+                'wind_chill_lo': 'wind_chill_min_f'
+            }
         }
     }
     
