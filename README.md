@@ -12,6 +12,8 @@ A comprehensive Python library for accessing WeatherLink v2 API to retrieve mete
 - **Professional API Integration**: Robust authentication and data retrieval
 - **Flexible Operation Modes**: Choose between demo mode (testing/education) or production mode (your stations)
 - **Sensor-Specific Processing**: Support for different sensor types with automatic field mapping
+- **Automatic Request Chunking**: Historical data requests > 24 hours automatically split and combined
+- **Multiple Sensor Support**: Vantage Pro2, Vantage Vue, and AirLink sensors
 - **Comprehensive Data Processing**: Automatic unit conversions (Imperial ↔ Metric)
 - **Advanced Visualization**: Built-in plotting functions for weather data analysis
 - **Export Capabilities**: CSV export with customizable formats
@@ -74,11 +76,20 @@ if sensors:
     print(f"Sensor type: {sensor_info.get('sensor_type')}")
 
 # Get historical data with extended range for production
+# Automatically splits requests > 24h into multiple chunks
 historic_data = api.get_historic_data(station_id=my_station_id, hours_back=168)  # 7 days
 
-# Parse data for weather station (sensor type 23)
-df = parse_weather_data(historic_data, sensor_type=23)
-print(f"Retrieved {len(df)} weather records")
+# Parse data for different sensor types:
+# Vantage Pro2 (type 23)
+df_pro2 = parse_weather_data(historic_data, sensor_type=23, data_structure_type=4)
+
+# Vantage Vue (type 37)
+df_vue = parse_weather_data(historic_data, sensor_type=37, data_structure_type=24)
+
+# AirLink (type 323)
+df_airlink = parse_weather_data(historic_data, sensor_type=323, data_structure_type=17)
+
+print(f"Retrieved {len(df_pro2)} weather records")
 ```
 
 ## 📋 Requirements
@@ -133,7 +144,10 @@ Simple and direct example showing core functionality:
 Working with different sensor types:
 - Exploring available sensor types
 - Sensor-specific data parsing
+- Vantage Pro2 weather stations (type 23)
+- Vantage Vue weather stations (type 37)
 - AirLink air quality sensors (type 323)
+- Different data structure types
 
 ### Running Examples
 
@@ -161,7 +175,7 @@ python examples/sensor_types.py
 | `get_sensors()` | Get all available sensors | None |
 | `get_sensors_info(sensor_id)` | Get specific sensor info | Sensor ID (lsid) |
 | `get_current_data(station_id)` | Get current weather data | Station ID |
-| `get_historic_data(station_id, hours_back)` | Get historical data | Station ID, hours back |
+| `get_historic_data(station_id, hours_back)` | Get historical data | Station ID, hours back (automatically chunked if > 24h) |
 | `test_connection()` | Test API connection | None |
 
 ### Utility Functions
@@ -177,9 +191,25 @@ python examples/sensor_types.py
 
 | Sensor Type | Description | Data Structure Types |
 |-------------|-------------|----------------------|
+| 23 | Vantage Pro2 (Weather Station) | 4 (Archive) |
+| 37 | Vantage Vue (Weather Station) | 24 (Archive) |
 | 323 | AirLink (Air Quality) | 16 (Current), 17 (Archive) |
 
 ## ⚠️ Important Notes
+
+### Historical Data Requests
+
+The WeatherLink API has a 24-hour limit per request. This library automatically handles longer time periods by:
+- Splitting requests > 24 hours into multiple 24-hour chunks
+- Combining all responses into a single unified format
+- Sorting data chronologically by timestamp
+- No user intervention required - completely transparent
+
+**Example:**
+```python
+# This automatically splits into 7 separate API requests and combines results
+historic_data = api.get_historic_data(station_id="your_id", hours_back=168)  # 7 days
+```
 
 ### Data Units
 
