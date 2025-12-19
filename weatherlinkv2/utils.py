@@ -154,6 +154,7 @@ def parse_weather_data(api_response: Dict, sensor_type: int, data_structure_type
             }
         }
     }
+    sensor_field_mappings[326] = sensor_field_mappings[323]
     
     # Generic field mappings for common weather station data
     generic_mappings = {
