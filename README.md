@@ -193,7 +193,7 @@ python examples/sensor_types.py
 |-------------|-------------|----------------------|
 | 23 | Vantage Pro2 (Weather Station) | 4 (Archive) |
 | 37 | Vantage Vue (Weather Station) | 24 (Archive) |
-| 323 | AirLink (Air Quality) | 16 (Current), 17 (Archive) |
+| 323 / 326 | AirLink (Air Quality) | 16 (Current), 17 (Archive) |
 
 ## ⚠️ Important Notes
 
